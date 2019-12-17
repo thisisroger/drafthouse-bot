@@ -1,4 +1,5 @@
 import React from "react";
+import {Link} from 'react-router-dom';
 import axios from "axios";
 import Film from "./Film";
 
@@ -98,6 +99,7 @@ class NowPlaying extends React.Component {
         let filmAPI = [];
 
         filmList.forEach(function(element) {
+          console.log(element);
           let showtimeURL =
             "https://drafthouse.com/s/mother/v1/page/showtime/showtime-by-session/0801/" +
             element.filmSessionId;
@@ -158,16 +160,18 @@ class NowPlaying extends React.Component {
             <div className="movie-list">
               {payload.map(item => {
                 return (
-                  <Film
-                    poster={item.film.posterImage}
-                    title={item.film.title}
-                    dateKey={dateKey.sessions[0].showTimeClt.substring(0, 10)}
-                    sessions={item.sessions}
-                    key={item.sessions[0].sessionId}
-                    formatShowtime={this.formatShowtime}
-                    slug={item.film.slug}
-                    path={`/details/${item.film.slug}`}
-                  />
+                  <Link key={item.sessions[0].sessionId} to={`/film/${item.film.slug}`}>
+                    <Film
+                      poster={item.film.posterImage}
+                      title={item.film.title}
+                      dateKey={dateKey.sessions[0].showTimeClt.substring(0, 10)}
+                      sessions={item.sessions}
+                      key={item.sessions[0].sessionId}
+                      formatShowtime={this.formatShowtime}
+                      slug={item.film.slug}
+                      path={`/details/${item.film.slug}`}
+                    />
+                  </Link>
                 );
               })}
             </div>
