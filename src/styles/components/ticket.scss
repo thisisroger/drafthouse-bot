@@ -1,0 +1,71 @@
+.movie-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-content: start;
+}
+.movie {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: auto;
+  margin-top: 30px;
+  flex-direction: column;
+  max-width: 160px;
+}
+.movie__poster {
+  border: 4px solid black;
+  margin-bottom: 10px;
+  max-width: 160px;
+  width: 100%;
+}
+
+.now-playing {
+  hgroup {
+    display: block;
+    // padding: 30px;
+
+    > * + * {
+      margin-top: 10px;
+    }
+
+    h2 {
+      color: #de474e;
+      font-size: 7rem;
+      text-transform: uppercase;
+    }
+
+    h4 {
+      font-size: 1.8rem;
+      font-weight: normal;
+    }
+  }
+}
+.film-details {
+  display: flex;
+  padding: 30px;
+
+  hgroup {
+    flex: 1;
+    padding: 0 30px;
+  }
+}
+
+.film-details__poster {
+  border: 2px solid black;
+  max-width: 120px;
+  width: 100%;
+}
+
+.ticket__header h2 {
+  color: black;
+}
+
+.showtime-list {
+  color: #de474e;
+  > * + * {
+    margin-left: 10px;
+  }
+  > li {
+    display: inline-block;
+  }
+}

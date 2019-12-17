@@ -1,0 +1,33 @@
+.footer {
+  display: flex;
+  border-top: 4px solid black;
+}
+
+.nav,
+.nav-actions {
+  width: 20%;
+
+  * + * {
+    border-top: 2px solid black;
+  }
+
+  a {
+    color: black;
+    display: block;
+    font-size: 1.6rem;
+    font-weight: bold;
+    padding: 20px 20px;
+    text-decoration: none;
+    transition: background-color 0.15s;
+
+    &:hover {
+      background-color: #de474e;
+    }
+  }
+}
+
+.control-panel {
+  border-left: 4px solid black;
+  border-right: 4px solid black;
+  flex: 1;
+}

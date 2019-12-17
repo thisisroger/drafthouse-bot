@@ -1,0 +1,26 @@
+.intro {
+  background-image: url("./assets/alamo-intro.gif");
+  position: relative;
+  display: none;
+
+  -webkit-filter: blur(100px);
+  filter: blur(100px);
+
+  height: 100vh;
+  width: 100vw;
+
+  &:after {
+    background-image: url("./assets/alamo-intro.gif");
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 30vh;
+    width: 50vw;
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    -webkit-filter: blur(0);
+    filter: blur(0);
+  }
+}
