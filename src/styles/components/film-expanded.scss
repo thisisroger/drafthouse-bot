@@ -1,0 +1,82 @@
+.film-expanded {
+  padding: 30px;
+
+  &__header {
+    align-items: flex-start;
+    display: flex;
+    margin-bottom: 30px;
+  }
+
+  &__aside {
+    max-width: 160px;
+  }
+
+  &__poster {
+    border: 4px solid black;
+    width: 100%;
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  &__heading {
+    flex: 1;
+    padding-left: 30px;
+  }
+
+  &__title {
+    color: #de474e;
+    font-size: 4rem;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+  }
+
+  &__headline {
+    font-size: 3rem;
+    margin-bottom: 30px;
+  }
+
+  &__content {
+    font-size: 1.6rem;
+    max-width: 40vw;
+    line-height: 1.75;
+    margin-top: 30px;
+  }
+
+  &__meta {
+    color: #666666;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 30px;
+
+    * + * {
+      margin-left: 45px;
+    }
+
+    > li {
+      display: inline-block;
+    }
+  }
+
+  &__people {
+    font-size: 1.6rem;
+    line-height: 1.5;
+    max-width: 60rem;
+    > li {
+      margin-bottom: 15px;
+    }
+    span {
+      color: #de474e;
+      font-weight: bold;
+    }
+  }
+
+  &__actions {
+    margin-bottom: 30px;
+    > * + * {
+      margin-left: 15px;
+    }
+    > li {
+      display: inline-block;
+    }
+  }
+}

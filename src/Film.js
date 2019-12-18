@@ -1,7 +1,15 @@
 import React from "react";
 
 const Film = props => {
-  const { poster, title, sessions, dateKey, sessionId, formatShowtime } = props;
+  const {
+    poster,
+    title,
+    sessions,
+    dateKey,
+    sessionId,
+    formatShowtime,
+    seatsLeft
+  } = props;
 
   return (
     <div key={sessionId} className="movie">
@@ -11,6 +19,7 @@ const Film = props => {
       <div className="ticket">
         <div className="ticket__header">
           <h2>{title}</h2>
+          <h3>Seats Left: {seatsLeft}</h3>
         </div>
         <ul className="showtime-list">
           {sessions.map(item => {

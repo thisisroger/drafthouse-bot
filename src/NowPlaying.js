@@ -1,5 +1,5 @@
 import React from "react";
-import {Link} from 'react-router-dom';
+import { Link } from "react-router-dom";
 import axios from "axios";
 import Film from "./Film";
 
@@ -9,7 +9,8 @@ class NowPlaying extends React.Component {
 
     this.state = {
       isLoading: true,
-      payload: []
+      payload: [],
+      payloadMeta: []
     };
   }
 
@@ -88,10 +89,13 @@ class NowPlaying extends React.Component {
         const filmList = [];
 
         /* Necessary to build the Available Showtimes url */
-        films.forEach(function(element) {
+        films.forEach(element => {
+          console.log(element);
           let movieData = {
             filmSlug: element.FilmSlug,
-            filmSessionId: element.Series[0].Formats[0].Sessions[0].SessionId
+            filmSessionId: element.Series[0].Formats[0].Sessions[0].SessionId,
+            seatingLow: element.Series[0].Formats[0].Sessions[0].SeatingLow,
+            seatsLeft: element.Series[0].Formats[0].Sessions[0].SeatsLeft
           };
           filmList.push(movieData);
         });
@@ -105,6 +109,8 @@ class NowPlaying extends React.Component {
             element.filmSessionId;
           filmAPI.push(showtimeURL);
         });
+
+        this.setState({ payloadMeta: filmList });
 
         async function getAllData(filmAPI) {
           let networkRequestPromises = filmAPI.map(fetchData);
@@ -142,14 +148,23 @@ class NowPlaying extends React.Component {
       });
   }
 
+  getSeatsLeft = filmSlug => {
+    this.state.payloadMeta.forEach(item => {
+      console.log(item);
+      if (item.filmSlug === filmSlug) {
+        return item.seatsLeft;
+      }
+    });
+  };
+
   componentDidMount() {
     this.setState({ isLoading: true }, this.fetchData);
   }
 
   render() {
-    const { payload, isLoading } = this.state;
+    const { payload, isLoading, payloadMeta } = this.state;
     const dateKey = payload[0];
-    console.log(payload);
+    console.log(payloadMeta);
     return (
       <div className="view">
         {isLoading ? (
@@ -160,7 +175,10 @@ class NowPlaying extends React.Component {
             <div className="movie-list">
               {payload.map(item => {
                 return (
-                  <Link key={item.sessions[0].sessionId} to={`/film/${item.film.slug}`}>
+                  <Link
+                    key={item.sessions[0].sessionId}
+                    to={`/film/${item.film.slug}`}
+                  >
                     <Film
                       poster={item.film.posterImage}
                       title={item.film.title}
@@ -170,6 +188,7 @@ class NowPlaying extends React.Component {
                       formatShowtime={this.formatShowtime}
                       slug={item.film.slug}
                       path={`/details/${item.film.slug}`}
+                      seatsLeft={this.getSeatsLeft(item.film.slug)}
                     />
                   </Link>
                 );

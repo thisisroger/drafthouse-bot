@@ -11,7 +11,79 @@ class Details extends React.Component {
       movieTitle: this.props.match.params.slug
     };
   }
-  
+
+  buildYouTubeUrl(id) {
+    let youtubeUrl = "https://www.youtube.com/embed/";
+    console.log(`${youtubeUrl}${id.split("=")[1]}`);
+    return `${youtubeUrl}/${id.split("=")[1]}`;
+  }
+
+  formatDate(timestamp) {
+    //2019-12-14T15:10:00
+
+    let months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
+
+    let daysOfWeek = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ];
+
+    let monthStr = timestamp.substring(5, 7);
+    let monthInt = parseInt(monthStr, 10);
+
+    let month = months[monthInt - 1];
+
+    let day = timestamp.substring(8, 10);
+
+    let year = timestamp.substring(0, 4);
+
+    let time = timestamp.substring(11, 19);
+
+    let showtimeDateStr = `${month} ${day}, ${year} ${time}`;
+
+    let showtimeDay = new Date(showtimeDateStr);
+
+    let showtimeDayOfWeek = showtimeDay.getDay();
+
+    return daysOfWeek[showtimeDayOfWeek];
+  }
+
+  formatShowtime(timestamp) {
+    let timeKey = timestamp.indexOf("T");
+    let showtimeHour = timestamp.substring(timeKey + 1, timeKey + 3);
+    let showtimeMinute = timestamp.substring(timeKey + 4, timeKey + 6);
+    let amOrPm = "a";
+    let showtime = "";
+
+    if (showtimeHour == 12) {
+      showtime = "Noon";
+    } else if (showtimeHour > 12) {
+      showtimeHour -= 12;
+      amOrPm = "p";
+      showtime = `${showtimeHour}:${showtimeMinute}${amOrPm}`;
+    }
+
+    return showtime;
+  }
+
   fetchData() {
     axios
       .get("https://feeds.drafthouse.com/adcService/showtimes.svc/market/0800/")
@@ -65,7 +137,7 @@ class Details extends React.Component {
             let movieTitle = this.state.movieTitle;
 
             resp.forEach(function(item) {
-              console.log(item);
+              console.log(item.data.data.sessions);
               if (item.data.data.film.slug === movieTitle) {
                 payload.push(item.data.data);
               }
@@ -86,15 +158,59 @@ class Details extends React.Component {
 
   render() {
     const { payload, isLoading } = this.state;
-    console.log(this.props);
+    console.log(payload);
 
     if (isLoading) {
-      return <h1>loading...</h1>;
+      return <div className="intro"></div>;
     }
 
     return (
-      <div className="details">
-        <h1>Hello {payload[0].film.title}</h1>
+      <div className="film-expanded">
+        <div className="film-expanded__header">
+          <div className="film-expanded__aside">
+            <img
+              className="film-expanded__poster"
+              src={payload[0].film.posterImage}
+              alt={payload[0].film.title}
+            />
+          </div>
+
+          <hgroup className="film-expanded__heading">
+            <h2 className="film-expanded__title">{payload[0].film.title}</h2>
+            <ul className="film-expanded__meta">
+              <li>{payload[0].film.rating}</li>
+              <li>{payload[0].film.runtimeMinutes}min</li>
+              <li>{payload[0].film.year}</li>
+            </ul>
+            <h4 className="film-expanded__headline">
+              {payload[0].film.headline}
+            </h4>
+            <ul className="film-expanded__people">
+              <li>
+                <span>Director:</span> {payload[0].film.director}
+              </li>
+              <li>
+                <span>Starring:</span> {payload[0].film.cast}
+              </li>
+            </ul>
+            <ul className="film-expanded__showtimes">
+              {payload[0].sessions.map(item => {
+                return (
+                  <li key={item.sessionId}>
+                    {this.formatShowtime(item.showTimeClt)}
+                  </li>
+                );
+              })}
+            </ul>
+          </hgroup>
+        </div>
+        <iframe
+          className="film-expanded__trailer"
+          width="560"
+          height="315"
+          src={this.buildYouTubeUrl(payload[0].film.trailer)}
+          frameBorder="0"
+        ></iframe>
       </div>
     );
   }
