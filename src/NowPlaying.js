@@ -1,19 +1,14 @@
-import React from "react";
-import {Link} from 'react-router-dom';
-import axios from "axios";
+import React, { useContext } from "react";
+import { Link } from "react-router-dom";
+import ErrorBoundary from "./ErrorBoundary";
 import Film from "./Film";
+import { MovieContext } from "./MovieContext";
 
-class NowPlaying extends React.Component {
-  constructor(props) {
-    super(props);
+const NowPlaying = () => {
+  const [movies, setMovies] = useContext(MovieContext);
+  console.log(movies);
 
-    this.state = {
-      isLoading: true,
-      payload: []
-    };
-  }
-
-  formatDate(timestamp) {
+  let formatDate = timestamp => {
     //2019-12-14T15:10:00
 
     let months = [
@@ -59,9 +54,9 @@ class NowPlaying extends React.Component {
     let showtimeDayOfWeek = showtimeDay.getDay();
 
     return daysOfWeek[showtimeDayOfWeek];
-  }
+  };
 
-  formatShowtime(timestamp) {
+  let formatShowtime = timestamp => {
     let timeKey = timestamp.indexOf("T");
     let showtimeHour = timestamp.substring(timeKey + 1, timeKey + 3);
     let showtimeMinute = timestamp.substring(timeKey + 4, timeKey + 6);
@@ -77,109 +72,41 @@ class NowPlaying extends React.Component {
     }
 
     return showtime;
-  }
-
-  fetchData() {
-    axios
-      .get("https://feeds.drafthouse.com/adcService/showtimes.svc/market/0800/")
-      .then(res => {
-        const films = res.data.Market.Dates[0].Cinemas[0].Films;
-
-        const filmList = [];
-
-        /* Necessary to build the Available Showtimes url */
-        films.forEach(function(element) {
-          let movieData = {
-            filmSlug: element.FilmSlug,
-            filmSessionId: element.Series[0].Formats[0].Sessions[0].SessionId
-          };
-          filmList.push(movieData);
-        });
-
-        let filmAPI = [];
-
-        filmList.forEach(function(element) {
-          console.log(element);
-          let showtimeURL =
-            "https://drafthouse.com/s/mother/v1/page/showtime/showtime-by-session/0801/" +
-            element.filmSessionId;
-          filmAPI.push(showtimeURL);
-        });
-
-        async function getAllData(filmAPI) {
-          let networkRequestPromises = filmAPI.map(fetchData);
-          return await Promise.all(networkRequestPromises);
-        }
-
-        function fetchData(url) {
-          return axios
-            .get(url)
-            .then(function(response) {
-              return {
-                success: true,
-                data: response.data
-              };
-            })
-            .catch(function(error) {
-              return { success: false };
-            });
-        }
-
-        getAllData(filmAPI)
-          .then(resp => {
-            let payload = [];
-
-            resp.forEach(function(item) {
-              payload.push(item.data.data);
-            });
-
-            this.setState({ payload: payload, isLoading: false });
-            console.log(this.state.payload); // Object w/ prop of payload
-          })
-          .catch(e => {
-            console.log(e);
-          });
-      });
-  }
-
-  componentDidMount() {
-    this.setState({ isLoading: true }, this.fetchData);
-  }
-
-  render() {
-    const { payload, isLoading } = this.state;
-    const dateKey = payload[0];
-    console.log(payload);
-    return (
-      <div className="view">
-        {isLoading ? (
-          <div className="intro"></div>
-        ) : (
-          <div className="now-playing">
-            <h2 className="view__title">Today</h2>
-            <div className="movie-list">
-              {payload.map(item => {
-                return (
-                  <Link key={item.sessions[0].sessionId} to={`/film/${item.film.slug}`}>
-                    <Film
-                      poster={item.film.posterImage}
-                      title={item.film.title}
-                      dateKey={dateKey.sessions[0].showTimeClt.substring(0, 10)}
-                      sessions={item.sessions}
-                      key={item.sessions[0].sessionId}
-                      formatShowtime={this.formatShowtime}
-                      slug={item.film.slug}
-                      path={`/details/${item.film.slug}`}
-                    />
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
+  };
+  return (
+    <div className="view">
+      <div className="now-playing">
+        <h2 className="view__title">Today</h2>
+        <div className="movie-list">
+          {movies.films.map(item => {
+            return (
+              <Link
+                key={item.sessions[0].sessionId}
+                to={`/film/${item.film.slug}`}
+              >
+                <Film
+                  poster={item.film.posterImage}
+                  title={item.film.title}
+                  dateKey={item.sessions[0].showTimeClt}
+                  sessions={item.sessions}
+                  key={item.sessions[0].sessionId}
+                  formatShowtime={formatShowtime}
+                  slug={item.film.slug}
+                  path={`/details/${item.film.slug}`}
+                />
+              </Link>
+            );
+          })}
+        </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
-export default NowPlaying;
+export default function DetailsErrorBoundary(props) {
+  return (
+    <ErrorBoundary>
+      <NowPlaying {...props} />
+    </ErrorBoundary>
+  );
+}

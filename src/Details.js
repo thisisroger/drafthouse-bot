@@ -1,104 +1,90 @@
-import React from "react";
-import axios from "axios";
+import React, { useContext } from "react";
 import ErrorBoundary from "./ErrorBoundary";
 
-class Details extends React.Component {
-  constructor(props) {
-    super(props);
+import { MovieContext } from "./MovieContext";
 
-    this.state = {
-      isLoading: true,
-      movieTitle: this.props.match.params.slug
-    };
-  }
-  
-  fetchData() {
-    axios
-      .get("https://feeds.drafthouse.com/adcService/showtimes.svc/market/0800/")
-      .then(res => {
-        const films = res.data.Market.Dates[0].Cinemas[0].Films;
+const Details = props => {
+  const [movies, setMovies] = useContext(MovieContext);
 
-        const filmList = [];
+  let formatShowtime = timestamp => {
+    let timeKey = timestamp.indexOf("T");
+    let showtimeHour = timestamp.substring(timeKey + 1, timeKey + 3);
+    let showtimeMinute = timestamp.substring(timeKey + 4, timeKey + 6);
+    let amOrPm = "a";
+    let showtime = "";
 
-        /* Necessary to build the Available Showtimes url */
-        films.forEach(function(element) {
-          let movieData = {
-            filmSlug: element.FilmSlug,
-            filmSessionId: element.Series[0].Formats[0].Sessions[0].SessionId
-          };
-          filmList.push(movieData);
-        });
-
-        let filmAPI = [];
-
-        filmList.forEach(function(element) {
-          console.log(element);
-          let showtimeURL =
-            "https://drafthouse.com/s/mother/v1/page/showtime/showtime-by-session/0801/" +
-            element.filmSessionId;
-          filmAPI.push(showtimeURL);
-        });
-
-        async function getAllData(filmAPI) {
-          let networkRequestPromises = filmAPI.map(fetchData);
-          return await Promise.all(networkRequestPromises);
-        }
-
-        function fetchData(url) {
-          return axios
-            .get(url)
-            .then(function(response) {
-              return {
-                success: true,
-                data: response.data
-              };
-            })
-            .catch(function(error) {
-              return { success: false };
-            });
-        }
-
-        getAllData(filmAPI)
-          .then(resp => {
-            let payload = [];
-
-            let movieTitle = this.state.movieTitle;
-
-            resp.forEach(function(item) {
-              console.log(item);
-              if (item.data.data.film.slug === movieTitle) {
-                payload.push(item.data.data);
-              }
-            });
-
-            this.setState({ payload: payload, isLoading: false });
-            console.log(this.state.payload); // Object w/ prop of payload
-          })
-          .catch(e => {
-            console.log(e);
-          });
-      });
-  }
-
-  componentDidMount() {
-    this.setState({ isLoading: true }, this.fetchData);
-  }
-
-  render() {
-    const { payload, isLoading } = this.state;
-    console.log(this.props);
-
-    if (isLoading) {
-      return <h1>loading...</h1>;
+    if (showtimeHour == 12) {
+      showtime = "Noon";
+    } else if (showtimeHour > 12) {
+      showtimeHour -= 12;
+      amOrPm = "p";
+      showtime = `${showtimeHour}:${showtimeMinute}${amOrPm}`;
     }
 
+    return showtime;
+  };
+
+  let payload = [];
+
+  let formatUrlSlug = path => {
+    return path.split("/film/")[1];
+  };
+
+  movies.films.forEach(item => {
+    if (item.film.slug === formatUrlSlug(props.location.pathname)) {
+      payload.push(item);
+    }
+  });
+
+  if (!movies.isFetching) {
     return (
-      <div className="details">
-        <h1>Hello {payload[0].film.title}</h1>
+      <div>
+        <div className="film-expanded">
+          <div className="film-expanded__header">
+            <div className="film-expanded__aside">
+              <img
+                className="film-expanded__poster"
+                src={payload[0].film.posterImage}
+                alt={payload[0].film.title}
+              />
+            </div>
+
+            <hgroup className="film-expanded__heading">
+              <h2 className="film-expanded__title">{payload[0].film.title}</h2>
+              <ul className="film-expanded__meta">
+                <li>{payload[0].film.rating}</li>
+                <li>{payload[0].film.runtimeMinutes}min</li>
+                <li>{payload[0].film.year}</li>
+              </ul>
+              <h4 className="film-expanded__headline">
+                {payload[0].film.headline}
+              </h4>
+              <ul className="film-expanded__people">
+                <li>
+                  <span>Director:</span> {payload[0].film.director}
+                </li>
+                <li>
+                  <span>Starring:</span> {payload[0].film.cast}
+                </li>
+              </ul>
+              <ul className="film-expanded__showtimes">
+                {payload[0].sessions.map(item => {
+                  return (
+                    <li key={item.sessionId}>
+                      {formatShowtime(item.showTimeClt)}
+                    </li>
+                  );
+                })}
+              </ul>
+            </hgroup>
+          </div>
+        </div>
       </div>
     );
+  } else {
+    return <div>Loading</div>;
   }
-}
+};
 
 export default function DetailsErrorBoundary(props) {
   return (
