@@ -5,13 +5,16 @@ import { async } from "q";
 export const MovieContext = createContext();
 
 export const MovieProvider = props => {
-  const [movies, setMovies] = useState({ films: [], isFetching: true });
+  const [movies, setMovies] = useState({
+    filmApi: [],
+    isFetching: true
+  });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setMovies({
-          films: [],
+          filmApi: [],
           isFetching: true
         });
 
@@ -22,9 +25,24 @@ export const MovieProvider = props => {
         };
 
         filmDataApiUrl().then(results => {
-          let filteredResults = results.data.Market.Dates[0].Cinemas[0].Films;
+          let filmListApiRaw = results.data.Market.Dates;
+          let filmListApi = [];
 
-          let films = filteredResults;
+          let addMovie = (arr, item) => {
+            const found = arr.some(el => el.FilmId === item.FilmId);
+            if (!found) {
+              arr.push(item);
+            }
+            return arr;
+          };
+
+          filmListApiRaw.forEach(item => {
+            item.Cinemas[0].Films.forEach(item => {
+              addMovie(filmListApi, item);
+            });
+          });
+
+          let films = filmListApi;
           const filmList = [];
 
           /* Necessary to build the Available Showtimes url */
@@ -96,7 +114,7 @@ export const MovieProvider = props => {
               });
 
               setMovies({
-                films: payload,
+                filmApi: payload,
                 isFetching: false
               });
             })
@@ -127,7 +145,8 @@ export const MovieProvider = props => {
       } catch (e) {
         console.log(e);
         setMovies({
-          films: ["error"],
+          filmApi: ["Now Playing: error"],
+          comingSoonFilms: ["Coming Soon: error"],
           isFetching: false
         });
       }

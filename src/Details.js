@@ -30,11 +30,13 @@ const Details = props => {
     return path.split("/film/")[1];
   };
 
-  movies.films.forEach(item => {
+  movies.filmApi.forEach(item => {
     if (item.film.slug === formatUrlSlug(props.location.pathname)) {
       payload.push(item);
     }
   });
+
+  console.log(payload);
 
   if (!movies.isFetching) {
     return (

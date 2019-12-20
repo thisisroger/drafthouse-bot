@@ -4,16 +4,9 @@ import ErrorBoundary from "./ErrorBoundary";
 import Film from "./Film";
 import { MovieContext } from "./MovieContext";
 
-const NowPlaying = () => {
+const ComingSoon = () => {
   const [movies, setMovies] = useContext(MovieContext);
-
-  let formatDate = timestamp => {
-    //2019-12-14T15:10:00
-
-    let time = timestamp.substring(0, 10);
-    console.log(time);
-    return time;
-  };
+  console.log(movies);
 
   let formatShowtime = timestamp => {
     let timeKey = timestamp.indexOf("T");
@@ -36,11 +29,7 @@ const NowPlaying = () => {
   let payload = [];
 
   movies.filmApi.forEach(item => {
-    let todayDateKey = formatDate(movies.filmApi[0].sessions[0].showTimeClt);
-
-    if (formatDate(item.sessions[0].showTimeClt) === todayDateKey) {
-      payload.push(item);
-    }
+    payload.push(item);
   });
 
   console.log(payload);
@@ -49,7 +38,7 @@ const NowPlaying = () => {
     return (
       <div className="view">
         <div className="now-playing">
-          <h2 className="view__title">Today</h2>
+          <h2 className="view__title">Coming Soon</h2>
           <div className="movie-list">
             {payload.map(item => {
               return (
@@ -82,7 +71,7 @@ const NowPlaying = () => {
 export default function DetailsErrorBoundary(props) {
   return (
     <ErrorBoundary>
-      <NowPlaying {...props} />
+      <ComingSoon {...props} />
     </ErrorBoundary>
   );
 }
