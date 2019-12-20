@@ -11,7 +11,6 @@ const Film = props => {
       <div className="ticket">
         <ul className="showtime-list">
           {sessions.map(item => {
-            console.log(item);
             if (item.showTimeClt.substring(0, 10) == dateKey.substring(0, 10)) {
               return (
                 <li className="showtime-list__item" key={item.sessionId}>
